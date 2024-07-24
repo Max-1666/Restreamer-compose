@@ -1,0 +1,38 @@
+---
+version: "3.9"
+networks:
+  restreamer: 
+services:
+  restreamer:
+    image: datarhei/restreamer:latest
+    volumes:
+      - ${HOME}/data/restraamer/data:/core/data
+      - ${HOME}/data/restreamer/config:/core/config
+    ports:
+      - 8080:8080
+    environment:
+      - CORE_API_AUTH_PASSWORD=
+      - CORE_API_AUTH_USERNAME=
+      - CORE_API_AUTH_ENABLE=true
+    security_opt:
+      - seccomp=unconfined
+    privileged: true
+    container_name: restramer
+    depends_on:
+      - proxy
+    networks:
+      - restreamer
+  proxy:
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    container_name: proxy  
+    ports:
+      - 80:80
+      - 81:81
+      - 443:443
+    volumes:
+      - ${HOME}/data/proxy/data:/data
+      - ${HOME}/data/proxy/letsencrypt:/etc/letsencrypt
+    networks:
+      - restreamer
+
